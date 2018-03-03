@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "214828880627",
+    "firebase_url": "https://travel-india-c2621.firebaseio.com",
+    "project_id": "travel-india-c2621",
+    "storage_bucket": "travel-india-c2621.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:214828880627:android:eebfaa5b09096c3f",
+        "android_client_info": {
+          "package_name": "app.aadil.travelindia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "214828880627-hnqf00u001kc11ithc5qibmlj9tfbttp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.aadil.travelindia",
+            "certificate_hash": "9a519658731879e627984dd83e633c17bf198539"
+          }
+        },
+        {
+          "client_id": "214828880627-1qu04afmqgk6l8ng1a76oudq4o00k7m0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2hq8BbGm0thX64f6hEL3QPqHwjLmnTAg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "214828880627-1qu04afmqgk6l8ng1a76oudq4o00k7m0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Travel India</string>
+
+    <string-array name="quotes">
+        <item>"To travel is to live"</item>
+        <item>"Live with no excuses and travel with no regrets"</item>
+        <item>"Let's find some beautiful place to get lost"</item>
+        <item>"Don't listen to what they say. Go see."</item>
+        <item>"Travel far enough you meet yourself"</item>
+        <item>Jobs fill your pocket. Adventures fill your soul."</item>
+        <item>"People forget years and remember moments"</item>
+        <item>"We travel not to escape life but for life not to escape us"</item>
+    </string-array>
 </resources>
