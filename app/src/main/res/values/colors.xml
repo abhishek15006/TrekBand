@@ -3,6 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="splashScreenBackgroundColor">#48BDFF</color>
+    <!--<color name="splashScreenBackgroundColor">#48BDFF</color>-->
+    <color name="splashScreenBackgroundColor">#00FFD4</color>
     <color name="logoTextColor">#63a54c</color>
 </resources>
