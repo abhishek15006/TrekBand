@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="app.aadil.travelindia.AuthenticationActivity"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.AppCompatImageView
+        android:layout_margin="20dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/logo" />
+
+    <android.support.v7.widget.AppCompatEditText
+        android:id="@+id/email"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:background="@drawable/edittext_color"
+        android:hint="@string/email"
+        android:drawableLeft="@drawable/email"
+        android:drawablePadding="10dp"
+        android:padding="10dp"
+        android:textColor="#5D5C5C"/>
+
+    <android.support.v7.widget.AppCompatEditText
+        android:id="@+id/password"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:hint="@string/password"
+        android:background="@drawable/edittext_color"
+        android:drawableLeft="@drawable/password"
+        android:drawablePadding="10dp"
+        android:padding="10dp"
+        android:textColor="#5D5C5C"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal">
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="@string/login"
+            android:background="@color/colorPrimary"
+            android:textColor="#ffffff"
+            android:onClick="Login"/>
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/signup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="@string/signup"
+            android:background="@color/colorPrimary"
+            android:textColor="#ffffff"
+            android:onClick="Signup"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp">
+
+        <View
+            android:layout_gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="@android:color/darker_gray"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/or"
+            android:layout_margin="10dp"/>
+
+        <View
+            android:layout_gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+    </LinearLayout>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/loginwithgoogle"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:background="@color/colorPrimary"
+        android:textColor="#ffffff"
+        android:text="@string/loginWithGoogle"
+        android:drawableLeft="@drawable/google"
+        android:drawablePadding="10dp"
+        android:onClick="LoginWithGoogle"/>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/loginwithfacebook"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/colorPrimary"
+        android:textColor="#ffffff"
+        android:text="@string/loginWithFacebook"
+        android:drawableLeft="@drawable/facebook"
+        android:drawablePadding="10dp"
+        android:onClick="LoginWithFacebook"/>
+
+</LinearLayout>

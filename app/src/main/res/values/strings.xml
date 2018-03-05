@@ -11,4 +11,22 @@
         <item>"People forget years and remember moments"</item>
         <item>"We travel not to escape life but for life not to escape us"</item>
     </string-array>
+
+    <string name="email">Email Address</string>
+    <string name="password">Password (Min. 8 Characters)</string>
+
+    <string name="login">Log In</string>
+    <string name="signup">Sign Up</string>
+
+    <string name="or">OR</string>
+
+    <string name="loginWithGoogle">Login with Google</string>
+    <string name="loginWithFacebook">Login with Facebook</string>
+
+    <string name="uploadProfilePic">Profile Picture</string>
+
+    <string name="phone">Phone</string>
+
+    <string name="completeRegistration">Complete Registration</string>
+
 </resources>
