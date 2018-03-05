@@ -1,23 +1,39 @@
 package app.aadil.travelindia;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.storage.UploadTask;
 import com.hbb20.CountryCodePicker;
+
+import java.io.InputStream;
+import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class RegistrationActivity extends AppCompatActivity {
 
@@ -27,7 +43,10 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText numberET;
 
     private int REQUEST_CODE = 777;
-    private Bitmap bitmap = null;
+    private Bitmap bitmap;
+    private String ext;
+
+    private MaterialDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +57,46 @@ public class RegistrationActivity extends AppCompatActivity {
         usernameET = (EditText) findViewById(R.id.username);
         ccp = (CountryCodePicker) findViewById(R.id.countryCodePicker);
         numberET = (EditText) findViewById(R.id.number);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user != null && user.getDisplayName() != null)
+            usernameET.setText(user.getDisplayName());
+
+        if(user != null && user.getPhotoUrl() != null) {
+            Glide.with(this)
+                    .asBitmap()
+                    .load(user.getPhotoUrl().toString())
+                    .into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            bitmap = resource;
+                            ext = "JPG";
+                            profilePictureIV.setImageBitmap(resource);
+                        }
+                    });
+        }
+        else {
+            bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.user);
+            ext = "PNG";
+        }
     }
+
+    public void showProgressDialog(String title, String content) {
+        dialog = new MaterialDialog.Builder(this)
+                .contentColor(getResources().getColor(R.color.grey))
+                .backgroundColor(getResources().getColor(R.color.white))
+                .titleColor(getResources().getColor(R.color.grey))
+                .widgetColorRes(R.color.grey)
+                .backgroundColorRes(R.color.white)
+                .title(title)
+                .content(content)
+                .progress(true, 0)
+                .build();
+
+        dialog.show();
+    }
+
 
     public void pickAndUploadImage(View view) {
         Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
@@ -54,6 +112,18 @@ public class RegistrationActivity extends AppCompatActivity {
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                 profilePictureIV.setImageBitmap(bitmap);
+
+                if(selectedImage != null) {
+                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                    if (cursor != null && cursor.moveToFirst()) {
+                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                        String filePath = cursor.getString(columnIndex);
+                        ext = filePath.substring(filePath.lastIndexOf(".") + 1);
+                        ext = ext.toUpperCase();
+                        cursor.close();
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -74,13 +144,12 @@ public class RegistrationActivity extends AppCompatActivity {
             return;
         }
 
-        if(bitmap == null)
-            bitmap = Bitmap.createBitmap(profilePictureIV.getDrawingCache());
+        showProgressDialog("Registering..", "Please Wait");
 
         final UserModal user = new UserModal(username, country, number);
 
         UploadImageService uploadImageService = new UploadImageService();
-        uploadImageService.uploadImage(bitmap)
+        uploadImageService.uploadImage(bitmap, ext)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -95,12 +164,14 @@ public class RegistrationActivity extends AppCompatActivity {
 
                                         Intent searchIntent = new Intent(RegistrationActivity.this, SearchActivity.class);
                                         startActivity(searchIntent);
+                                        finish();
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         Toast.makeText(getApplicationContext(), "Registration Failed. " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                        dialog.dismiss();
                                     }
                                 });
                     }
@@ -109,6 +180,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(getApplicationContext(), "Registration Failed. " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
                     }
                 });
     }

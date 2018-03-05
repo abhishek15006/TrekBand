@@ -25,9 +25,14 @@ public class UploadImageService {
         imageRef = storageRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid() + ".jpg");
     }
 
-    public UploadTask uploadImage(Bitmap bitmap) {
+    public UploadTask uploadImage(Bitmap bitmap, String ext) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+
+        if(ext.equals("PNG"))
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+        else
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+
         byte[] data = outputStream.toByteArray();
         uploadTask = imageRef .putBytes(data);
         return uploadTask;

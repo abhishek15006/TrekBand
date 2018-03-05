@@ -213,8 +213,8 @@ public class AuthenticationActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Firebase sign in success
-                            Intent searchIntent = new Intent(AuthenticationActivity.this, SearchActivity.class);
-                            startActivity(searchIntent);
+                            Intent registerIntent = new Intent(AuthenticationActivity.this, RegistrationActivity.class);
+                            startActivity(registerIntent);
                         } else {
                             // Firebase sign in failed with given google credentials
                             Toast.makeText(getApplicationContext(), "Login with google failed. " + task.getException().getLocalizedMessage(), Toast.LENGTH_LONG).show();
