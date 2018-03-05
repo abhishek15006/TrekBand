@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,6 +13,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.UploadTask;
 import com.hbb20.CountryCodePicker;
 
 public class RegistrationActivity extends AppCompatActivity {
@@ -22,6 +26,7 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText numberET;
 
     private int REQUEST_CODE = 777;
+    private Bitmap bitmap = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +50,6 @@ public class RegistrationActivity extends AppCompatActivity {
 
         if(requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             Uri selectedImage = data.getData();
-            Bitmap bitmap = null;
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                 profilePictureIV.setImageBitmap(bitmap);
@@ -69,6 +73,21 @@ public class RegistrationActivity extends AppCompatActivity {
             return;
         }
 
-        // TODO SAVE DATA (Including Picture)
+        final String[] url = {null};
+
+        UploadImageService uploadImageService = new UploadImageService();
+        uploadImageService.uploadImage(bitmap)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        url[0] = taskSnapshot.getDownloadUrl().toString();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), "Registration Failed. " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 }
