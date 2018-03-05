@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -41,6 +43,8 @@ public class AuthenticationActivity extends AppCompatActivity {
 
     private GoogleSignInOptions gsio;
     private GoogleSignInClient gsic;
+
+    private MaterialDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +108,8 @@ public class AuthenticationActivity extends AppCompatActivity {
         if(!validateEmailAndPassword(email, password))
             return;
 
+        showProgressDialog("Signing In", "Please Wait");
+
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
 
@@ -117,9 +123,26 @@ public class AuthenticationActivity extends AppCompatActivity {
                         } else {
                             Toast.makeText(getApplicationContext(), "Log In failed. " + task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                         }
+
+                        dialog.dismiss();
                     }
                 });
 
+    }
+
+    public void showProgressDialog(String title, String content) {
+        dialog = new MaterialDialog.Builder(this)
+                .contentColor(getResources().getColor(R.color.grey))
+                .backgroundColor(getResources().getColor(R.color.white))
+                .titleColor(getResources().getColor(R.color.grey))
+                .widgetColorRes(R.color.grey)
+                .backgroundColorRes(R.color.white)
+                .title(title)
+                .content(content)
+                .progress(true, 0)
+                .build();
+
+        dialog.show();
     }
 
     public void Signup(View view) {
@@ -129,6 +152,8 @@ public class AuthenticationActivity extends AppCompatActivity {
         // Input Validation
         if(!validateEmailAndPassword(email, password))
             return;
+
+        showProgressDialog("Signing Up", "Please Wait");
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -144,6 +169,8 @@ public class AuthenticationActivity extends AppCompatActivity {
                         } else {
                             Toast.makeText(getApplicationContext(), "Signup failed. " + task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                         }
+
+                        dialog.dismiss();
                     }
                 });
     }
@@ -161,6 +188,8 @@ public class AuthenticationActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        showProgressDialog("Signing In", "Please Wait");
+
         if (requestCode == 9001) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
@@ -175,8 +204,6 @@ public class AuthenticationActivity extends AppCompatActivity {
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        // CAN SHOW A PROGRESS DIALOG
-
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
 
         mAuth.signInWithCredential(credential)
@@ -185,15 +212,15 @@ public class AuthenticationActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Firebase sign in failed with given google credentials
-                            Log.d("DEBUG", "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            // Firebase sign in success
+                            Intent searchIntent = new Intent(AuthenticationActivity.this, SearchActivity.class);
+                            startActivity(searchIntent);
                         } else {
                             // Firebase sign in failed with given google credentials
-                            Log.d("DEBUG", "signInWithCredential:failure", task.getException());
+                            Toast.makeText(getApplicationContext(), "Login with google failed. " + task.getException().getLocalizedMessage(), Toast.LENGTH_LONG).show();
                         }
 
-                        // STOP PROGRESS DIALOG
+                        dialog.dismiss();
                     }
                 });
     }

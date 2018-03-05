@@ -16,12 +16,12 @@
         <item name="android:background">@color/splashScreenBackgroundColor</item>
     </style>
 
-    <style name="Auth_and_Reg_Theme" parent="Theme.AppCompat.NoActionBar">
+    <style name="Auth_and_Reg_Theme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:background">@color/splashScreenBackgroundColor</item>
+        <!--<item name="android:windowFullscreen">true</item>-->
+        <!--<item name="android:background">@color/splashScreenBackgroundColor</item>-->
 
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>

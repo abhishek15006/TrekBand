@@ -6,4 +6,6 @@
     <!--<color name="splashScreenBackgroundColor">#48BDFF</color>-->
     <color name="splashScreenBackgroundColor">#00FFD4</color>
     <color name="logoTextColor">#63a54c</color>
+    <color name="white">#ffffff</color>
+    <color name="grey">#545454</color>
 </resources>
