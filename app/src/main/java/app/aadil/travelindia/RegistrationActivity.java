@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.storage.UploadTask;
 import com.hbb20.CountryCodePicker;
 
@@ -73,14 +74,35 @@ public class RegistrationActivity extends AppCompatActivity {
             return;
         }
 
-        final String[] url = {null};
+        if(bitmap == null)
+            bitmap = Bitmap.createBitmap(profilePictureIV.getDrawingCache());
+
+        final UserModal user = new UserModal(username, country, number);
 
         UploadImageService uploadImageService = new UploadImageService();
         uploadImageService.uploadImage(bitmap)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        url[0] = taskSnapshot.getDownloadUrl().toString();
+                        user.setImageUrl(taskSnapshot.getDownloadUrl().toString());
+
+                        FirestoreService firestoreService = new FirestoreService();
+                        firestoreService.storeUser(user)
+                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                    @Override
+                                    public void onSuccess(DocumentReference documentReference) {
+                                        Toast.makeText(getApplicationContext(), "Data successfully uploaded.", Toast.LENGTH_LONG).show();
+
+                                        Intent searchIntent = new Intent(RegistrationActivity.this, SearchActivity.class);
+                                        startActivity(searchIntent);
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getApplicationContext(), "Registration Failed. " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                                    }
+                                });
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
