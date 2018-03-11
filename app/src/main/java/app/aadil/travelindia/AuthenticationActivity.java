@@ -152,6 +152,8 @@ public class AuthenticationActivity extends AppCompatActivity {
 
     /*** CREATE NEW USER RECORD AND GOTO REGISTRATION ***/
     public void createEmptyUserRecordAndGotoRegistration(final String message) {
+        Log.d("DEBUG", " createEmptyUserRecordAndGotoRegistration Started");
+
         UserModal user = new UserModal();
 
         firestoreService.storeUser(user)
@@ -162,6 +164,8 @@ public class AuthenticationActivity extends AppCompatActivity {
                         gotoRegistration(message);
                     }
                 });
+
+        Log.d("DEBUG", " createEmptyUserRecordAndGotoRegistration Ended");
     }
 
     /*** SHOW PROGRESS DIALOG ***/
@@ -208,12 +212,18 @@ public class AuthenticationActivity extends AppCompatActivity {
 
     /*** GOOGLE LOGIN ***/
     public void LoginWithGoogle(View view) {
+        Log.d("DEBUG", " LoginWithGoogle Started");
+
         Intent googleLoginIntent = gsic.getSignInIntent();
         startActivityForResult(googleLoginIntent, 9001);
+
+        Log.d("DEBUG", " LoginWithGoogle Ended");
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("DEBUG", " onActivityResult Started");
+
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 9001) {
@@ -228,30 +238,42 @@ public class AuthenticationActivity extends AppCompatActivity {
                 Toasty.error(getApplicationContext(), "Google Login failed. ", Toast.LENGTH_LONG, true).show();
             }
         }
+
+        Log.d("DEBUG", " onActivityResult Ended");
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+        Log.d("DEBUG", " firebaseAuthWithGoogle Started");
+
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
 
         mAuth.signInWithCredential(credential)
                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
+                        Log.d("DEBUG", "Google On Success");
+
                         firestoreService.getCurrentUser()
                                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                        if (task.isSuccessful()) {
+                                        Log.d("DEBUG", "Google firestoreService completed");
+                                        Log.d("DEBUG", String.valueOf(task.getResult().size()));
+
+                                        if(task.getResult().size() == 0)
+                                            createEmptyUserRecordAndGotoRegistration("Successfully logged in with google.");
+                                        else {
                                             for (DocumentSnapshot document : task.getResult()) {
                                                 Map<String, Object> user = document.getData();
                                                 FirestoreService.setUserDocumentID(document.getId());
+                                                Log.d("DEBUG", "DocID " + document.getId().toString());
+                                                Log.d("DEBUG", "user registration " + user.get("registered").toString());
+
                                                 if(Boolean.valueOf(user.get("registered").toString()))
                                                     gotoSearch(user.get("name").toString());
                                                 else
                                                     gotoRegistration("Successfully logged in with google.");
                                             }
-                                        } else {
-                                            createEmptyUserRecordAndGotoRegistration("Successfully logged in with google.");
                                         }
                                     }
                                 });
@@ -260,22 +282,33 @@ public class AuthenticationActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        Log.d("DEBUG", "Google On Failure");
                         Toasty.error(getApplicationContext(), "Google Login failed. " + e.getLocalizedMessage(), Toast.LENGTH_LONG, true).show();
                     }
                 });
+
+        Log.d("DEBUG", " firebaseAuthWithGoogle Ended");
     }
 
     /*** REGISTRATION INTENT ***/
     public void gotoRegistration(String message) {
+        Log.d("DEBUG", " gotoRegistration Started");
+
         Intent intent = new Intent(AuthenticationActivity.this, RegistrationActivity.class);
         Toasty.success(getApplicationContext(), message, Toast.LENGTH_LONG, true).show();
         startActivity(intent);
+
+        Log.d("DEBUG", " gotoRegistration Ended");
     }
 
     /*** SEARCH INTENT ***/
     public void gotoSearch(String name) {
+        Log.d("DEBUG", " gotoSearch Started");
+
         Intent intent = new Intent(AuthenticationActivity.this, SearchActivity.class);
         Toasty.success(getApplicationContext(), "Welcome back, " + name + "!", Toast.LENGTH_LONG, true).show();
         startActivity(intent);
+
+        Log.d("DEBUG", " gotoSearch Ended");
     }
 }
