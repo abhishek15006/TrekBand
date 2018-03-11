@@ -24,12 +24,24 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.Map;
+
+import es.dmoral.toasty.Toasty;
 
 public class AuthenticationActivity extends AppCompatActivity {
 
@@ -45,6 +57,8 @@ public class AuthenticationActivity extends AppCompatActivity {
     private GoogleSignInClient gsic;
 
     private MaterialDialog dialog;
+
+    private FirestoreService firestoreService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +76,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         }
 
         mAuth = FirebaseAuth.getInstance();
+        firestoreService = FirestoreService.getInstance();
 
         emailET = (EditText) findViewById(R.id.email);
         passwordET = (EditText) findViewById(R.id.password);
@@ -74,32 +89,23 @@ public class AuthenticationActivity extends AppCompatActivity {
         gsic = GoogleSignIn.getClient(getApplicationContext(), gsio);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        System.out.println("DEBUG" + currentUser);
-
-        if(currentUser != null) {
-            Intent searchActivity = new Intent(AuthenticationActivity.this, SearchActivity.class);
-            startActivity(searchActivity);
-        }
-    }
-
+    /*** VALIDATE EMAIL AND PASSWORD ***/
     public boolean validateEmailAndPassword(String email, String password) {
         if(!isValidEmail(email) || password.length() < 8) {
             if(!isValidEmail(email))
-                Toast.makeText(getApplicationContext(), "Invalid Email Address", Toast.LENGTH_LONG).show();
+                Toasty.warning(getApplicationContext(), "Invalid Email Address.", Toast.LENGTH_LONG, true).show();
             else
-                Toast.makeText(getApplicationContext(), "Password too short - minimum length is 8 characters", Toast.LENGTH_LONG).show();
-
+                Toasty.warning(getApplicationContext(), "Password too short - minimum length is 8 characters", Toast.LENGTH_LONG, true).show();
             return false;
         }
-
         return true;
     }
 
+    public boolean isValidEmail(CharSequence text) {
+        return (!TextUtils.isEmpty(text)) && Patterns.EMAIL_ADDRESS.matcher(text).matches();
+    }
+
+    /*** EMAIL LOGIN ***/
     public void Login(View view) {
         String email = emailET.getText().toString();
         String password = passwordET.getText().toString();
@@ -116,20 +122,49 @@ public class AuthenticationActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(getApplicationContext(), "Log In success.", Toast.LENGTH_SHORT).show();
-                            Intent searchIntent = new Intent(AuthenticationActivity.this, SearchActivity.class);
-                            startActivity(searchIntent);
+                            firestoreService.getCurrentUser()
+                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                for (DocumentSnapshot document : task.getResult()) {
+                                                    Map<String, Object> user = document.getData();
+                                                    FirestoreService.setUserDocumentID(document.getId());
+                                                    if(Boolean.valueOf(user.get("registered").toString()))
+                                                        gotoSearch(user.get("name").toString());
+                                                    else
+                                                        gotoRegistration("Successfully logged in.");
+                                                }
+                                            } else {
+                                                createEmptyUserRecordAndGotoRegistration("Successfully logged in.");
+                                            }
+                                        }
+                                    });
                         } else {
-                            Toast.makeText(getApplicationContext(), "Log In failed. " + task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                            Toasty.error(getApplicationContext(), "Login with email failed. " + task.getException().getLocalizedMessage(), Toast.LENGTH_LONG, true).show();
                         }
 
-                        dialog.dismiss();
+//                        dialog.dismiss();
                     }
                 });
 
     }
 
+    /*** CREATE NEW USER RECORD AND GOTO REGISTRATION ***/
+    public void createEmptyUserRecordAndGotoRegistration(final String message) {
+        UserModal user = new UserModal();
+
+        firestoreService.storeUser(user)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        FirestoreService.setUserDocumentID(documentReference.getId());
+                        gotoRegistration(message);
+                    }
+                });
+    }
+
+    /*** SHOW PROGRESS DIALOG ***/
     public void showProgressDialog(String title, String content) {
         dialog = new MaterialDialog.Builder(this)
                 .contentColor(getResources().getColor(R.color.grey))
@@ -145,6 +180,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    /*** EMAIL SIGNUP ***/
     public void Signup(View view) {
         String email = emailET.getText().toString();
         String password = passwordET.getText().toString();
@@ -160,25 +196,17 @@ public class AuthenticationActivity extends AppCompatActivity {
 
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(getApplicationContext(), "Sign Up success.", Toast.LENGTH_SHORT).show();
+                        if (task.isSuccessful())
+                            createEmptyUserRecordAndGotoRegistration("Welcome. You have successfully signed up.");
+                        else
+                            Toasty.error(getApplicationContext(), task.getException().getLocalizedMessage(), Toast.LENGTH_LONG, true).show();
 
-                            Intent registrationIntent = new Intent(AuthenticationActivity.this, RegistrationActivity.class);
-                            startActivity(registrationIntent);
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Signup failed. " + task.getException().getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                        }
-
-                        dialog.dismiss();
+//                        dialog.dismiss();
                     }
                 });
     }
 
-    public boolean isValidEmail(CharSequence text) {
-        return (!TextUtils.isEmpty(text)) && Patterns.EMAIL_ADDRESS.matcher(text).matches();
-    }
-
+    /*** GOOGLE LOGIN ***/
     public void LoginWithGoogle(View view) {
         Intent googleLoginIntent = gsic.getSignInIntent();
         startActivityForResult(googleLoginIntent, 9001);
@@ -188,17 +216,16 @@ public class AuthenticationActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        showProgressDialog("Signing In", "Please Wait");
-
         if (requestCode == 9001) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
-                // Google Sign In was successful, proceed to firebase authentication
+                // Google Sign In was successful, proceed to firebase authentication.
                 GoogleSignInAccount account = task.getResult(ApiException.class);
+                showProgressDialog("Signing In", "Please Wait");
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
-                // Google Sign In failed
-                Toast.makeText(getApplicationContext(), "Google sign in failed.", Toast.LENGTH_LONG).show();
+                // Google Sign In failed.
+                Toasty.error(getApplicationContext(), "Google Login failed. ", Toast.LENGTH_LONG, true).show();
             }
         }
     }
@@ -207,24 +234,48 @@ public class AuthenticationActivity extends AppCompatActivity {
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
 
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-
+                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Firebase sign in success
-                            Intent registerIntent = new Intent(AuthenticationActivity.this, RegistrationActivity.class);
-                            startActivity(registerIntent);
-                        } else {
-                            // Firebase sign in failed with given google credentials
-                            Toast.makeText(getApplicationContext(), "Login with google failed. " + task.getException().getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                        }
-
-                        dialog.dismiss();
+                    public void onSuccess(AuthResult authResult) {
+                        firestoreService.getCurrentUser()
+                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            for (DocumentSnapshot document : task.getResult()) {
+                                                Map<String, Object> user = document.getData();
+                                                FirestoreService.setUserDocumentID(document.getId());
+                                                if(Boolean.valueOf(user.get("registered").toString()))
+                                                    gotoSearch(user.get("name").toString());
+                                                else
+                                                    gotoRegistration("Successfully logged in with google.");
+                                            }
+                                        } else {
+                                            createEmptyUserRecordAndGotoRegistration("Successfully logged in with google.");
+                                        }
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toasty.error(getApplicationContext(), "Google Login failed. " + e.getLocalizedMessage(), Toast.LENGTH_LONG, true).show();
                     }
                 });
     }
 
-    public void LoginWithFacebook(View view) {
+    /*** REGISTRATION INTENT ***/
+    public void gotoRegistration(String message) {
+        Intent intent = new Intent(AuthenticationActivity.this, RegistrationActivity.class);
+        Toasty.success(getApplicationContext(), message, Toast.LENGTH_LONG, true).show();
+        startActivity(intent);
+    }
+
+    /*** SEARCH INTENT ***/
+    public void gotoSearch(String name) {
+        Intent intent = new Intent(AuthenticationActivity.this, SearchActivity.class);
+        Toasty.success(getApplicationContext(), "Welcome back, " + name + "!", Toast.LENGTH_LONG, true).show();
+        startActivity(intent);
     }
 }

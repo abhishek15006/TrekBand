@@ -7,16 +7,17 @@
     android:layout_height="match_parent"
     tools:context="app.aadil.travelindia.RegistrationActivity"
     android:orientation="vertical"
-    android:gravity="center_horizontal">
+    android:gravity="center_horizontal"
+    android:background="@color/customPrimaryLight">
 
-    <android.support.v7.widget.AppCompatImageView
+    <com.mikhaellopez.circularimageview.CircularImageView
         android:id="@+id/profilePic"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="25dp"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:scaleType="fitXY"
         android:src="@drawable/user"
-        android:background="@drawable/imageview_border"/>
+        app:civ_border_color="@color/customPrimary"
+        app:civ_border_width="5dp" />
 
     <Button
         android:id="@+id/uploadProfilePic"

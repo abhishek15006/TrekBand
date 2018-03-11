@@ -29,4 +29,8 @@
 
     <string name="completeRegistration">Complete Registration</string>
 
+    <string name="facebook_app_id">152011438811462</string>
+
+    <string name="fb_login_protocol_scheme">fb152011438811462</string>
+
 </resources>
