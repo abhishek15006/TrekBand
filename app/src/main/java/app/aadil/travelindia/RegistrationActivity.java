@@ -22,18 +22,27 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.UploadTask;
 import com.hbb20.CountryCodePicker;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import es.dmoral.toasty.Toasty;
 
 public class RegistrationActivity extends AppCompatActivity {
 
@@ -137,16 +146,16 @@ public class RegistrationActivity extends AppCompatActivity {
 
         if(username.length() == 0 || number.length() != 10) {
             if(username.length() == 0)
-                Toast.makeText(getApplicationContext(), "Invalid Username.", Toast.LENGTH_LONG).show();
+                Toasty.warning(getApplicationContext(), "Invalid Username.", Toast.LENGTH_LONG, true).show();
             else
-                Toast.makeText(getApplicationContext(), "Invalid Phone Number.", Toast.LENGTH_LONG).show();
+                Toasty.warning(getApplicationContext(), "Invalid Phone Number.", Toast.LENGTH_LONG, true).show();
 
             return;
         }
 
         showProgressDialog("Registering..", "Please Wait");
 
-        final UserModal user = new UserModal(username, country, number);
+        final UserModal user = new UserModal(username, country, number, true);
 
         UploadImageService uploadImageService = new UploadImageService();
         uploadImageService.uploadImage(bitmap, ext)
@@ -155,14 +164,18 @@ public class RegistrationActivity extends AppCompatActivity {
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         user.setImageUrl(taskSnapshot.getDownloadUrl().toString());
 
-                        FirestoreService firestoreService = new FirestoreService();
-                        firestoreService.storeUser(user)
-                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                    @Override
-                                    public void onSuccess(DocumentReference documentReference) {
-                                        Toast.makeText(getApplicationContext(), "Data successfully uploaded.", Toast.LENGTH_LONG).show();
+                        FirestoreService firestoreService = FirestoreService.getInstance();
+                        FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 
+
+                        firebaseFirestore.collection("users")
+                                .document(FirestoreService.getUserDocumentID())
+                                .set(user, SetOptions.merge())
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
                                         Intent searchIntent = new Intent(RegistrationActivity.this, SearchActivity.class);
+                                        Toasty.success(getApplicationContext(), "Registration Complete.", Toast.LENGTH_LONG, true).show();
                                         startActivity(searchIntent);
                                         finish();
                                     }
@@ -170,8 +183,8 @@ public class RegistrationActivity extends AppCompatActivity {
                                 .addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(getApplicationContext(), "Registration Failed. " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                                        dialog.dismiss();
+                                        Toasty.error(getApplicationContext(), "Registration Failed. " + e.getLocalizedMessage(), Toast.LENGTH_LONG, true).show();
+//                                       dialog.dismiss();
                                     }
                                 });
                     }
@@ -179,8 +192,8 @@ public class RegistrationActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(), "Registration Failed. " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                        dialog.dismiss();
+                        Toasty.error(getApplicationContext(), "Registration Failed. " + e.getLocalizedMessage(), Toast.LENGTH_LONG, true).show();
+//                        dialog.dismiss();
                     }
                 });
     }

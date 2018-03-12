@@ -14,29 +14,32 @@
 
         <activity
             android:name=".SplashActivity"
-            android:theme="@style/SplashTheme">
+            android:theme="@style/AppThemeFullScreen"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".SearchActivity" />
+        <activity
+            android:name=".SearchActivity"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".AuthenticationActivity"
-            android:theme="@style/Auth_and_Reg_Theme">
+            android:theme="@style/AppThemeNoActionBar"
+            android:screenOrientation="portrait">
         </activity>
 
         <activity
             android:name=".RegistrationActivity"
-            android:theme="@style/Auth_and_Reg_Theme">
+            android:screenOrientation="portrait">
         </activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCu0itULZ1JMR0KkvYGmG-T4obUtq5eT8Y"/>
-
     </application>
 
 </manifest>

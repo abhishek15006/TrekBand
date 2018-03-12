@@ -9,20 +9,27 @@ public class UserModal {
     private String name;
     private String country;
     private String phone;
+    private boolean registered;
 
-    public UserModal(String url, String name, String country, String phone) {
+    public UserModal() {
+        this.uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
+    public UserModal(String url, String name, String country, String phone, boolean registered) {
         this.uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         this.imageUrl = url;
         this.name = name;
         this.country = country;
         this.phone = phone;
+        this.registered = registered;
     }
 
-    public UserModal(String name, String country, String phone) {
+    public UserModal(String name, String country, String phone, boolean registered) {
         this.uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         this.name = name;
         this.country = country;
         this.phone = phone;
+        this.registered = registered;
     }
 
     public String getUid() {
@@ -63,5 +70,13 @@ public class UserModal {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setRegistered(boolean registered) {
+        this.registered = registered;
+    }
+
+    public boolean getRegistered() {
+        return this.registered;
     }
 }
