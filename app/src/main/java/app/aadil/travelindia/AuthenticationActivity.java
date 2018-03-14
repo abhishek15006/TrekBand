@@ -142,9 +142,8 @@ public class AuthenticationActivity extends AppCompatActivity {
                                     });
                         } else {
                             Toasty.error(getApplicationContext(), "Login with email failed. " + task.getException().getLocalizedMessage(), Toast.LENGTH_LONG, true).show();
+                            dialog.dismiss();
                         }
-
-//                        dialog.dismiss();
                     }
                 });
 
@@ -202,10 +201,10 @@ public class AuthenticationActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful())
                             createEmptyUserRecordAndGotoRegistration("Welcome. You have successfully signed up.");
-                        else
+                        else {
                             Toasty.error(getApplicationContext(), task.getException().getLocalizedMessage(), Toast.LENGTH_LONG, true).show();
-
-//                        dialog.dismiss();
+                            dialog.dismiss();
+                        }
                     }
                 });
     }
@@ -284,6 +283,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                     public void onFailure(@NonNull Exception e) {
                         Log.d("DEBUG", "Google On Failure");
                         Toasty.error(getApplicationContext(), "Google Login failed. " + e.getLocalizedMessage(), Toast.LENGTH_LONG, true).show();
+                        dialog.dismiss();
                     }
                 });
 

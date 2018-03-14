@@ -51,4 +51,12 @@ public class FirestoreService {
     public static String getUserDocumentID() {
         return userDocumentID;
     }
+
+    public Task<QuerySnapshot> getPlaces() {
+        return firebaseFirestore.collection("Places").get();
+    }
+
+    public Task<DocumentSnapshot> getCityPlaces(String City) {
+        return firebaseFirestore.collection("Places").document(City).get();
+    }
 }

@@ -36,6 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchActivity extends AppCompatActivity {
+
+    // Type a place or state name
+
     private final String apiKey = "AIzaSyCu0itULZ1JMR0KkvYGmG-T4obUtq5eT8Y";
 
     RecyclerView recyclerView;
@@ -67,8 +70,8 @@ public class SearchActivity extends AppCompatActivity {
             public void onPlaceSelected(Place place) {
                 // TODO: Get info about the selected place.
                 Log.i("PLACES", "Place: " + place.getPlaceTypes().toString());
+                Log.i("PLACES", "Place Name: " + place.getName().toString());
                 getPlaces(place);
-
             }
 
             @Override
@@ -97,7 +100,6 @@ public class SearchActivity extends AppCompatActivity {
         }
 
         mapsRequest(url);
-
     }
 
     public void mapsRequest(String url){

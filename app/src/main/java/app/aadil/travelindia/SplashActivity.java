@@ -21,7 +21,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -32,7 +34,7 @@ public class SplashActivity extends AppCompatActivity {
     private String[] quotes;
     private TextView quoteTV;
     private Random random;
-    private static int SCREEN_TIMEOUT = 5000;
+    private static int SCREEN_TIMEOUT = 2500;
     private FirestoreService firestoreService;
 
     @Override
@@ -52,7 +54,53 @@ public class SplashActivity extends AppCompatActivity {
         firestoreService = FirestoreService.getInstance();
 
         configToasty();
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Compile database of 1554 locations
+
+        final SearchData searchData = SearchData.getInstance();
+        searchData.getPlacesFromFirestore()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot documentSnapshots) {
+                        int size = documentSnapshots.size();
+                        List<DocumentSnapshot> documents = documentSnapshots.getDocuments();
+
+                        for(int i = 0; i < size; ++i) {
+                            DocumentSnapshot documentSnapshot = documents.get(i);
+                            String City = documentSnapshot.getId();
+                            List<String> Places = new ArrayList<>();
+
+                            Map<String, Object> pairs = documentSnapshot.getData();
+                            for(int j = 0; j < pairs.size(); ++j) {
+                                int index = j + 1;
+                                if(index <= 9)
+                                    Places.add(String.valueOf(pairs.get("Place0" + index)));
+                                else
+                                    Places.add(String.valueOf(pairs.get("Place" + index)));
+                            }
+
+                            SearchData.addCity(City, Places);
+                        }
+
+                        startProcedures();
+//                        List<String> AllPlaces = SearchData.getAllPlaces();
+//                        Log.i("DEBUG ", String.valueOf(AllPlaces.size()));
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toasty.error(getApplicationContext(), e.getLocalizedMessage().toString(), Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    public void startProcedures() {
         new Handler().postDelayed(new Runnable() {
 
             private FirebaseAuth mAuth;

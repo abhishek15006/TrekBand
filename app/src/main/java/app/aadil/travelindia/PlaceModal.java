@@ -11,11 +11,7 @@ import com.squareup.picasso.Picasso;
 
 import java.lang.annotation.Target;
 
-/**
- * Created by abhishek on 11/3/18.
- */
-
-public class PlaceModal implements com.squareup.picasso.Target{
+public class PlaceModal implements com.squareup.picasso.Target {
     private String mName;
     private Bitmap mImage;
     private Context context;
