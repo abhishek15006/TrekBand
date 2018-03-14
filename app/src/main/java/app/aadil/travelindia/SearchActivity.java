@@ -1,11 +1,7 @@
 package app.aadil.travelindia;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v4.app.*;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -16,16 +12,13 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlacePhotoMetadata;
-import com.google.android.gms.location.places.PlacePhotoMetadataBuffer;
-import com.google.android.gms.location.places.PlacePhotoMetadataResponse;
-import com.google.android.gms.location.places.PlacePhotoResponse;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.*;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.squareup.picasso.Picasso;
 
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,19 +36,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchActivity extends AppCompatActivity {
-    RecyclerView placeDetails;
-    protected GeoDataClient mGeoDataClient;
     private final String apiKey = "AIzaSyCu0itULZ1JMR0KkvYGmG-T4obUtq5eT8Y";
-    public TextView test;
+
+    RecyclerView recyclerView;
+    PlaceAdapter placeAdapter;
+
+    protected GeoDataClient mGeoDataClient;
+
+    List<PlaceModal> placeModalList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
-        test = (TextView)findViewById(R.id.jsonresponse);
-
         mGeoDataClient = Places.getGeoDataClient(this, null);
+        placeModalList = new ArrayList<>();
+        placeAdapter = new PlaceAdapter(placeModalList);
+
+        recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(placeAdapter);
 
         SupportPlaceAutocompleteFragment autocompleteFragment = (SupportPlaceAutocompleteFragment)
                 getSupportFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
@@ -109,6 +111,22 @@ public class SearchActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try{
                             JSONArray results = response.getJSONArray("results");
+                            placeModalList.clear();
+                            for(int i=0;i<results.length();++i){
+                                JSONObject placeJSONInfo = results.getJSONObject(i);
+                                placeModalList.add(new PlaceModal(getApplicationContext(), placeAdapter, placeJSONInfo.getString("name"),null));
+
+                                placeAdapter.notifyDataSetChanged();
+
+                                String photoRef = placeJSONInfo.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
+                                String photoURL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&maxheight=300&photoreference=" + photoRef +"&key=" + apiKey;
+
+                                Picasso.get()
+                                   .load(photoURL)
+                                   .into(placeModalList.get(i));
+                            }
+
+
 
                         }catch (JSONException e){
                             Toast.makeText(getApplicationContext(),
@@ -122,7 +140,10 @@ public class SearchActivity extends AppCompatActivity {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        test.setText("Sorry");
+                        Toast.makeText(getApplicationContext(),
+                                "Search error" ,
+                                Toast.LENGTH_LONG)
+                                .show();
 
                     }
                 });
@@ -130,37 +151,37 @@ public class SearchActivity extends AppCompatActivity {
         queue.add(jsonObjectRequest);
     }
 
-    private class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceHolder>{
-        List<PlaceModal> places;
+    public class PlaceHolder extends RecyclerView.ViewHolder{
+        public ImageView placeImageView;
+        public TextView placeName;
 
-        public class PlaceHolder extends RecyclerView.ViewHolder{
-            public ImageView placeImageView;
-            public TextView placeName;
-
-            public PlaceHolder(View itemView){
-                super(itemView);
-                placeImageView = (ImageView)itemView.findViewById(R.id.place_image);
-                placeName = (TextView)itemView.findViewById(R.id.place_name);
-            }
+        public PlaceHolder(View itemView){
+            super(itemView);
+            placeImageView = (ImageView)itemView.findViewById(R.id.place_image);
+            placeName = (TextView)itemView.findViewById(R.id.place_name);
         }
+    }
+
+    private class PlaceAdapter extends RecyclerView.Adapter<PlaceHolder>{
+        List<PlaceModal> places;
 
         public PlaceAdapter(List<PlaceModal> places){
             this.places = places;
         }
 
         @Override
-        public PlaceAdapter.PlaceHolder onCreateViewHolder(ViewGroup parent, int viewType){
+        public PlaceHolder onCreateViewHolder(ViewGroup parent, int viewType){
             Context context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
 
-            View contactView = inflater.inflate(R.layout.row_place, parent, false);
+            View contactView = inflater.inflate(R.layout.place_card, parent, false);
 
             PlaceHolder viewHolder = new PlaceHolder(contactView);
             return viewHolder;
         }
 
         @Override
-        public void onBindViewHolder(PlaceAdapter.PlaceHolder placeHolder, int position) {
+        public void onBindViewHolder(PlaceHolder placeHolder, int position) {
             PlaceModal placeModal = places.get(position);
             ImageView placeImageView = placeHolder.placeImageView;
             TextView placeName = placeHolder.placeName;
@@ -175,5 +196,4 @@ public class SearchActivity extends AppCompatActivity {
             return places.size();
         }
     }
-
 }
