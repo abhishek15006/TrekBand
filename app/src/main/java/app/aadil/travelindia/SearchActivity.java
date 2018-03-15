@@ -1,6 +1,8 @@
 package app.aadil.travelindia;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.android.volley.Request;
@@ -39,7 +41,7 @@ public class SearchActivity extends AppCompatActivity {
 
     // Type a place or state name
 
-    private final String apiKey = "AIzaSyCu0itULZ1JMR0KkvYGmG-T4obUtq5eT8Y";
+    public static final String apiKey = "AIzaSyBO1hlIlilP0a1vPsa_t-Vs8NMZZldgcs8";
 
     RecyclerView recyclerView;
     PlaceAdapter placeAdapter;
@@ -116,7 +118,7 @@ public class SearchActivity extends AppCompatActivity {
                             placeModalList.clear();
                             for(int i=0;i<results.length();++i){
                                 JSONObject placeJSONInfo = results.getJSONObject(i);
-                                placeModalList.add(new PlaceModal(getApplicationContext(), placeAdapter, placeJSONInfo.getString("name"),null));
+                                placeModalList.add(new PlaceModal(getApplicationContext(), placeAdapter, placeJSONInfo.getString("name"),null,placeJSONInfo.getString("place_id")));
 
                                 placeAdapter.notifyDataSetChanged();
 
@@ -127,8 +129,6 @@ public class SearchActivity extends AppCompatActivity {
                                    .load(photoURL)
                                    .into(placeModalList.get(i));
                             }
-
-
 
                         }catch (JSONException e){
                             Toast.makeText(getApplicationContext(),
@@ -156,12 +156,29 @@ public class SearchActivity extends AppCompatActivity {
     public class PlaceHolder extends RecyclerView.ViewHolder{
         public ImageView placeImageView;
         public TextView placeName;
+        public String placeId;
 
         public PlaceHolder(View itemView){
             super(itemView);
             placeImageView = (ImageView)itemView.findViewById(R.id.place_image);
             placeName = (TextView)itemView.findViewById(R.id.place_name);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(SearchActivity.this,PlacedescriptionActivity.class);
+                    i.putExtra(PlacedescriptionActivity.PLACE_NAME_KEY,placeName.getText());
+                    i.putExtra(PlacedescriptionActivity.PLACE_IMAGE_KEY,((BitmapDrawable)placeImageView.getDrawable()).getBitmap());
+                    i.putExtra(PlacedescriptionActivity.PLACE_ID_KEY,placeId);
+                    startActivity(i);
+                }
+            });
         }
+
+        public void setPlaceId(String id){
+            placeId = id;
+        }
+
     }
 
     private class PlaceAdapter extends RecyclerView.Adapter<PlaceHolder>{
@@ -188,8 +205,11 @@ public class SearchActivity extends AppCompatActivity {
             ImageView placeImageView = placeHolder.placeImageView;
             TextView placeName = placeHolder.placeName;
 
+            placeHolder.setPlaceId(places.get(position).getPlace_id());
             placeImageView.setImageBitmap(placeModal.getImage());
             placeName.setText(placeModal.getName());
+
+
         }
 
         // Returns the total count of items in the list

@@ -13,15 +13,17 @@ import java.lang.annotation.Target;
 
 public class PlaceModal implements com.squareup.picasso.Target {
     private String mName;
+    private String place_id;
     private Bitmap mImage;
     private Context context;
     private RecyclerView.Adapter adapter;
 
-    public PlaceModal(Context context, RecyclerView.Adapter adapter, String mName, Bitmap mImage){
+    public PlaceModal(Context context, RecyclerView.Adapter adapter, String mName, Bitmap mImage, String place_id){
         this.mName = mName;
         this.mImage = mImage;
         this.context = context;
         this.adapter = adapter;
+        this.place_id = place_id;
     }
 
     public String getName(){
@@ -30,6 +32,10 @@ public class PlaceModal implements com.squareup.picasso.Target {
 
     public Bitmap getImage(){
         return mImage;
+    }
+
+    public String getPlace_id(){
+        return place_id;
     }
 
     @Override
