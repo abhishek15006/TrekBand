@@ -96,7 +96,7 @@ public class SearchActivity extends AppCompatActivity {
         if(isPolitical){
             url = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=point+of+interest+in+" + place.getName().toString().replace(' ','+') + "&key=" + apiKey;
         }else{
-            url = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=" + place.getName().toString().replace(' ','+') + "&key=" + apiKey;
+            url = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=point+of+interest+" + place.getName().toString().replace(' ','+') + "&key=" + apiKey;
         }
 
         mapsRequest(url);
