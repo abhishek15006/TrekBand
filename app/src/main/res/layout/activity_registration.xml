@@ -7,8 +7,9 @@
     android:layout_height="match_parent"
     tools:context="app.aadil.travelindia.RegistrationActivity"
     android:orientation="vertical"
+    android:background="@mipmap/login_back"
     android:gravity="center_horizontal"
-    android:background="@color/customPrimaryLight">
+    >
 
     <com.mikhaellopez.circularimageview.CircularImageView
         android:id="@+id/profilePic"
@@ -24,7 +25,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="@drawable/shape2"
         android:textColor="#ffffff"
         android:layout_marginTop="20dp"
         android:padding="10dp"
@@ -74,7 +75,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="@drawable/shape3"
         android:layout_marginTop="30dp"
         android:textColor="#ffffff"
         android:padding="10dp"

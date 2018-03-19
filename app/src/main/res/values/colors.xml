@@ -12,4 +12,7 @@
 
     <color name="white">#ffffff</color>
     <color name="grey">#545454</color>
+
+    <color name="youthubecolor">#212121</color>
+    <color name="youthubecolor2">#212121</color>
 </resources>

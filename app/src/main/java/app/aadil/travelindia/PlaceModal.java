@@ -9,8 +9,6 @@ import android.support.v7.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
-import java.lang.annotation.Target;
-
 public class PlaceModal implements com.squareup.picasso.Target {
     private String mName;
     private String place_id;
@@ -52,7 +50,7 @@ public class PlaceModal implements com.squareup.picasso.Target {
 
     @Override
     public void onPrepareLoad(Drawable placeHolderDrawable) {
-        mImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.logo);
+        mImage = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);
         adapter.notifyDataSetChanged();
     }
 }

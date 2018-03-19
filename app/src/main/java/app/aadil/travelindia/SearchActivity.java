@@ -3,7 +3,18 @@ package app.aadil.travelindia;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -15,20 +26,9 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.location.places.ui.*;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
 import com.squareup.picasso.Picasso;
-
-import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,7 +60,7 @@ public class SearchActivity extends AppCompatActivity {
         placeAdapter = new PlaceAdapter(placeModalList);
 
         recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(placeAdapter);
 

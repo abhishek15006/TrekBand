@@ -37,10 +37,7 @@
             android:value="AIzaSyCu0itULZ1JMR0KkvYGmG-T4obUtq5eT8Y" />
 
         <activity android:name=".FeedData" />
-        <activity
-            android:name=".NavActivity"
-            android:label="@string/title_activity_nav" />
-        <activity android:name=".PlacedescriptionActivity"></activity>
+        <activity android:name=".PlacedescriptionActivity" />
     </application>
 
 </manifest>
